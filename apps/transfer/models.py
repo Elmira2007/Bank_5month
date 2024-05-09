@@ -33,13 +33,6 @@ class HistoryTransfer(models.Model):
 
     def __str__(self):
         return f"Перевод от {self.from_user.username} к {self.to_user.username}"
-    def clean(self):
-        super().clean()
-        # Проверяем, достаточно ли у отправителя средств для выполнения перевода
-        if self.from_user.balance < self.amount:
-            # Если недостаточно средств, добавляем сообщение в non_field_errors
-            self.add_error(None, "Недостаточно средств для перевода")
-    
     
     def save(self, *args, **kwargs):
         # Проверяем, достаточно ли у отправителя средств для выполнения перевода
@@ -50,9 +43,7 @@ class HistoryTransfer(models.Model):
             # Сохраняем обновленные балансы пользователей
             self.from_user.save()
             self.to_user.save()
-            super().save(*args, **kwargs)  # Сохраняем объект HistoryTransfer
-        else:
-            raise IntegrityError("Недостаточно средств для перевода")
+            super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "История перевода"
